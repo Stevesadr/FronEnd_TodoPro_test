@@ -3,6 +3,8 @@ import Head from "next/head";
 import Navbar from "../components/Navbar";
 import PricingCard from "@/components/PricingCard";
 import Footer from "@/components/Footer";
+import images from "../public/image/photo_2025-07-25 20.49.07.jpeg";
+import Image from "next/image";
 
 export default function PricingPage() {
   const { scrollYProgress } = useScroll();
@@ -118,6 +120,66 @@ export default function PricingPage() {
                 disabled={true}
               />
             </motion.div>
+            {/* Bitcoin Donation Box */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mt-16 max-w-2xl mx-auto bg-gradient-to-br from-green-50 to-blue-50 border border-green-200 rounded-xl p-8 shadow-sm"
+            >
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+                Support Our Development
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Love our free service? Help us keep it running by donating
+                Bitcoin. Every contribution helps improve TodoApp!
+              </p>
+
+              {/* QR Code Display */}
+              <div className="flex justify-center mb-4">
+                <div className="p-2 bg-white rounded-lg border border-gray-200 inline-block">
+                  <Image
+                    src={images}
+                    alt="Bitcoin QR Code"
+                    className="w-32 h-32"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src =
+                        "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' fill='%236b7280'%3EBTC QR%3C/text%3E%3C/svg%3E";
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Wallet Address */}
+              <div className="bg-white p-4 rounded-lg border border-gray-200 mb-4">
+                <p className="text-sm text-gray-500 mb-2">
+                  Bitcoin Wallet Address:
+                </p>
+                <div className="flex items-center justify-between">
+                  <code className="font-mono text-gray-800 break-all">
+                    bc1q0adr8z0khwpmk9mvf8nfe5g740fw9y5dwgg47a
+                  </code>
+                  <motion.button
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        "bc1q0adr8z0khwpmk9mvf8nfe5g740fw9y5dwgg47a"
+                      );
+                      alert("Bitcoin address copied!");
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="ml-3 px-3 py-1.5 bg-blue-500 text-white rounded-md text-sm"
+                  >
+                    Copy
+                  </motion.button>
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-500">
+                Thank you for supporting independent developers!
+              </p>
+            </motion.div>
 
             {/* FAQ Section */}
             <motion.div
@@ -153,75 +215,6 @@ export default function PricingPage() {
     </>
   );
 }
-
-// const PricingCard = ({
-//   name,
-//   price,
-//   period,
-//   features,
-//   buttonText,
-//   highlight,
-//   disabled = false,
-// }) => {
-//   return (
-//     <motion.div
-//       whileHover={!disabled ? { y: -10 } : {}}
-//       className={`relative rounded-xl p-8 border-2 ${
-//         highlight
-//           ? "border-purple-300 bg-purple-50 shadow-lg"
-//           : "border-gray-200 bg-white"
-//       } ${disabled ? "opacity-80" : ""}`}
-//     >
-//       {highlight && (
-//         <motion.div
-//           initial={{ scale: 0 }}
-//           whileInView={{ scale: 1 }}
-//           className="absolute -top-3 right-6 bg-gradient-to-r from-purple-600 to-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium"
-//         >
-//           Popular
-//         </motion.div>
-//       )}
-
-//       <h3 className="text-2xl font-bold mb-2">{name}</h3>
-//       <p className="text-4xl font-bold mb-4">
-//         {price}
-//         <span className="text-lg text-gray-500">/{period}</span>
-//       </p>
-
-//       <ul className="space-y-3 mb-8">
-//         {features.map((feature, i) => (
-//           <motion.li
-//             key={i}
-//             initial={{ opacity: 0, x: -10 }}
-//             whileInView={{ opacity: 1, x: 0 }}
-//             transition={{ delay: i * 0.05 }}
-//             className={`flex items-start ${
-//               feature.startsWith("✓") ? "text-gray-700" : "text-gray-400"
-//             }`}
-//           >
-//             <span className="mr-2">{feature.startsWith("✓") ? "✓" : "✗"}</span>
-//             <span>{feature.substring(2)}</span>
-//           </motion.li>
-//         ))}
-//       </ul>
-
-//       <motion.button
-//         whileHover={!disabled ? { scale: 1.03 } : {}}
-//         whileTap={!disabled ? { scale: 0.98 } : {}}
-//         className={`w-full py-3 rounded-lg font-medium ${
-//           highlight && !disabled
-//             ? "bg-gradient-to-r from-purple-600 to-blue-500 text-white"
-//             : disabled
-//             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-//             : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-//         }`}
-//         disabled={disabled}
-//       >
-//         {buttonText}
-//       </motion.button>
-//     </motion.div>
-//   );
-// };
 
 const faqs = [
   {

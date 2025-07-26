@@ -50,7 +50,7 @@ export default function SignIn() {
         });
 
         // ریدایرکت به صفحه مورد نظر یا داشبورد
-        const redirectUrl = router.query.redirect || "/emailVerification";
+        const redirectUrl = router.query.redirect || "/dashboard";
         router.push(redirectUrl);
       } catch (error) {
         console.error("Login error:", error);

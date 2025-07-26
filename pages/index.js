@@ -3,6 +3,7 @@ import Head from "next/head";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PricingCard from "../components/PricingCard";
+import Link from "next/link";
 
 export default function Home() {
   const { scrollYProgress } = useScroll();
@@ -67,9 +68,12 @@ export default function Home() {
               whileTap={{ scale: 0.95 }}
               className="inline-block"
             >
-              <button className="bg-black text-white px-8 py-3 -z-20 rounded-full text-lg font-medium hover:bg-gray-800 transition-all">
+              <Link
+                href={"./register"}
+                className="bg-black text-white px-8 py-3 -z-20 rounded-full text-lg font-medium hover:bg-gray-800 transition-all"
+              >
                 Discover How It Works →
-              </button>
+              </Link>
             </motion.div>
           </div>
         </motion.section>
@@ -304,7 +308,7 @@ export default function Home() {
               {/* Pro Plan - Featured */}
               <PricingCard
                 name="Professional"
-                price="$19"
+                price="$9"
                 period="per month"
                 description="For growing businesses"
                 features={[
@@ -324,7 +328,7 @@ export default function Home() {
               {/* Enterprise Plan - Premium */}
               <PricingCard
                 name="Enterprise"
-                price="$49"
+                price="$29"
                 period="per month"
                 description="For large organizations"
                 features={[
@@ -391,9 +395,12 @@ export default function Home() {
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
-                <button className="bg-white text-blue-800 px-8 py-4 rounded-full text-lg font-bold shadow-lg hover:shadow-xl transition-all">
+                <Link
+                  href={"./register"}
+                  className="bg-white text-blue-800 px-8 py-4 rounded-full text-lg font-bold shadow-lg hover:shadow-xl transition-all"
+                >
                   Start Free 14-Day Trial →
-                </button>
+                </Link>
               </motion.div>
 
               <motion.div
@@ -401,9 +408,12 @@ export default function Home() {
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, delay: 0.1 }}
               >
-                <button className="border-2 border-white/30 bg-white/5 px-8 py-4 rounded-full text-lg font-medium hover:bg-white/10 transition-all backdrop-blur-sm">
+                <Link
+                  href={"./login"}
+                  className="border-2 border-white/30 bg-white/5 px-8 py-4 rounded-full text-lg font-medium hover:bg-white/10 transition-all backdrop-blur-sm"
+                >
                   See How It Works
-                </button>
+                </Link>
               </motion.div>
             </div>
 

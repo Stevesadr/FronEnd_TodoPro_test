@@ -58,6 +58,7 @@ export default function Dashboard({ initialTodos }) {
   const fetchTodos = async () => {
     try {
       const token = getToken();
+      console.log(token);
       const res = await fetch("http://127.0.0.1:5000/todos/", {
         method: "GET",
         headers: {

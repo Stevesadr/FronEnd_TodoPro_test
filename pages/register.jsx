@@ -9,9 +9,10 @@ import { useState } from "react";
 import { POST } from "./api/postWithOutToken";
 
 export default function Register() {
-  const { login } = useAuth();
+  const { setTempUser } = useAuth(); // تغییر به setTempUser برای ذخیره موقت اطلاعات کاربر
   const router = useRouter();
   const [serverError, setServerError] = useState(null);
+  const [serverSuccess, setServerSuccess] = useState(null);
 
   // اعتبارسنجی فرم با Yup
   const validationSchema = Yup.object({
@@ -36,24 +37,36 @@ export default function Register() {
     validationSchema,
     onSubmit: async (values) => {
       setServerError(null);
+      setServerSuccess(null);
       try {
         const response = await POST("auth/register", values);
 
         if (!response.ok) {
-          throw new Error("Registration failed");
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Registration failed");
         }
 
         const data = await response.json();
-        const token = data.token;
 
-        // ذخیره توکن و اطلاعات کاربر
-        await login(token, {
-          username: values.username,
+        // ذخیره موقت اطلاعات کاربر بدون توکن
+        setTempUser({
           email: values.email,
+          username: values.username,
+          isVerified: false,
         });
 
-        // ریدایرکت به داشبورد
-        router.push("/emailVerification");
+        // نمایش پیام موفقیت
+        setServerSuccess(
+          data.message || "Registration successful! Please check your email."
+        );
+
+        // ریدایرکت به صفحه تأیید ایمیل پس از 2 ثانیه
+        setTimeout(() => {
+          router.push({
+            pathname: "/emailVerification",
+            query: { email: values.email }, // ارسال ایمیل به عنوان query parameter
+          });
+        }, 2000);
       } catch (error) {
         console.error("Registration error:", error);
         setServerError(
@@ -107,6 +120,16 @@ export default function Register() {
                   className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm"
                 >
                   {serverError}
+                </motion.div>
+              )}
+
+              {serverSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-4 p-3 bg-green-50 text-green-600 rounded-lg text-sm"
+                >
+                  {serverSuccess}
                 </motion.div>
               )}
 

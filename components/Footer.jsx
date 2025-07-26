@@ -1,6 +1,7 @@
-// components/Footer.jsx
 import Link from "next/link";
 import { motion } from "framer-motion";
+import QRimage from "../public/image/photo_2025-07-25 20.49.07.jpeg";
+import Image from "next/image";
 
 const Footer = () => {
   return (
@@ -42,7 +43,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/features"
+                  href="/Features"
                   className="text-gray-400 hover:text-white transition"
                 >
                   Features
@@ -50,7 +51,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/pricing"
+                  href="/Pricing"
                   className="text-gray-400 hover:text-white transition"
                 >
                   Pricing
@@ -58,7 +59,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/blog"
+                  href="/Integrations"
                   className="text-gray-400 hover:text-white transition"
                 >
                   Blog
@@ -76,23 +77,40 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Newsletter */}
-          <div className="space-y-4">
-            <h3 className="text-white text-xl font-bold">Stay Updated</h3>
-            <div className="flex">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="px-4 py-2 rounded-l-lg bg-gray-700 text-white focus:outline-none w-full"
-              />
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-r-lg hover:bg-blue-700 transition">
-                Join
-              </button>
+          {/* Bitcoin Donation */}
+          <motion.div whileHover={{ y: -5 }} className="space-y-4">
+            <h3 className="text-white text-xl font-bold">Support Us</h3>
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <p className="text-gray-300 text-sm mb-2">Bitcoin Donation:</p>
+              <div className="flex items-center space-x-2">
+                <div className="bg-white p-1 rounded">
+                  <Image
+                    src={QRimage}
+                    alt="Bitcoin QR Code"
+                    className="w-12 h-12"
+                  />
+                </div>
+                <div className="flex-1">
+                  <code className="text-xs text-gray-300 break-all block mb-1">
+                    bc1q0adr8z0khwpmk9mvf8nfe5g740fw9y5dwgg47a
+                  </code>
+                  <motion.button
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        "bc1q0adr8z0khwpmk9mvf8nfe5g740fw9y5dwgg47a"
+                      );
+                      alert("Bitcoin address copied!");
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="text-xs bg-blue-600 text-white px-2 py-1 rounded"
+                  >
+                    Copy Address
+                  </motion.button>
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-gray-500">
-              Get the latest productivity tips
-            </p>
-          </div>
+          </motion.div>
         </div>
 
         {/* Copyright */}

@@ -53,6 +53,12 @@ export function AuthProvider({ children }) {
     router.push("/dashboard");
   };
 
+  const setTempUserData = (userData) => {
+    // setTempUser(userData);
+    // برای ذخیره موقت در localStorage اگر نیاز است
+    localStorage.setItem("tempUser", JSON.stringify(userData));
+  };
+
   const logout = () => {
     // حذف توکن از کوکی
     Cookies.remove("token", { path: "/" });
@@ -67,6 +73,7 @@ export function AuthProvider({ children }) {
         isLoading,
         login,
         logout,
+        setTempUser: setTempUserData,
       }}
     >
       {children}
