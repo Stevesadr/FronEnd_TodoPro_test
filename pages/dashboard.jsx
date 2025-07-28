@@ -26,7 +26,7 @@ export async function getServerSideProps(context) {
   }
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/todos", {
+    const res = await fetch("https://backend-todopro-test.onrender.com/todos", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -48,6 +48,7 @@ export default function Dashboard({ initialTodos }) {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("tasks");
   const [tasks, setTasks] = useState(initialTodos);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // تابع کمکی برای دریافت توکن
   const getToken = () => {
@@ -59,13 +60,16 @@ export default function Dashboard({ initialTodos }) {
     try {
       const token = getToken();
       console.log(token);
-      const res = await fetch("http://127.0.0.1:5000/todos/", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        "https://backend-todopro-test.onrender.com/todos/",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!res.ok) throw new Error("Failed to fetch todos");
       setTasks(await res.json());
     } catch (error) {
@@ -88,14 +92,17 @@ export default function Dashboard({ initialTodos }) {
       setTasks((prev) => [...prev, tempTask]);
 
       // 2. ارسال درخواست به بک‌اند
-      const res = await fetch("http://127.0.0.1:5000/todos/add", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title }),
-      });
+      const res = await fetch(
+        "https://backend-todopro-test.onrender.com/todos/add",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title }),
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to add todo");
 
@@ -123,16 +130,19 @@ export default function Dashboard({ initialTodos }) {
       const taskToUpdate = tasks.find((task) => task.todo_id === id);
       if (!taskToUpdate) return;
 
-      const res = await fetch(`http://127.0.0.1:5000/todos/${id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status: !taskToUpdate.status, // تغییر وضعیت به حالت معکوس
-        }),
-      });
+      const res = await fetch(
+        `https://backend-todopro-test.onrender.com/todos/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: !taskToUpdate.status, // تغییر وضعیت به حالت معکوس
+          }),
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to update todo");
 
@@ -158,26 +168,53 @@ export default function Dashboard({ initialTodos }) {
 
   useEffect(() => {
     if (getToken()) fetchTodos();
+
+    // بررسی اندازه صفحه برای نمایش سایدبار
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
     <>
       <Head>
         <title>Dashboard | TodoPro</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex flex-col md:flex-row h-screen bg-gray-50 relative">
+        {/* دکمه همبرگر برای موبایل */}
+        <button
+          className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-md shadow-md"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          ☰
+        </button>
+
         {/* سایدبار */}
         <motion.aside
           initial={{ x: -100 }}
-          animate={{ x: 0 }}
-          className="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col"
+          animate={{
+            x: isSidebarOpen ? 0 : -300,
+            width: isSidebarOpen ? "16rem" : "0",
+          }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className={`fixed md:relative z-40 h-full bg-white shadow-sm border-r border-gray-200 flex flex-col`}
+          style={{ width: isSidebarOpen ? "16rem" : "0" }}
         >
           <div className="p-4 border-b border-gray-200">
             <h1 className="text-xl font-bold text-gray-800">TodoPro</h1>
           </div>
 
-          <nav className="flex-1 p-4 space-y-2">
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
             <button
               onClick={() => setActiveTab("dashboard")}
               className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
@@ -227,21 +264,23 @@ export default function Dashboard({ initialTodos }) {
         </motion.aside>
 
         {/* محتوای اصلی */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden md:ml-0 transition-all duration-300">
           {/* هدر */}
           <header className="bg-white shadow-sm border-b border-gray-200">
-            <div className="flex justify-between items-center px-6 py-4">
-              <h2 className="text-xl font-semibold text-gray-800">
+            <div className="flex justify-between items-center px-4 md:px-6 py-4">
+              <h2 className="text-lg md:text-xl font-semibold text-gray-800">
                 My Dashboard
               </h2>
-              <div className="flex items-center space-x-4">
-                <div className="text-right">
-                  <p className="font-medium">{user?.username || "User"}</p>
-                  <p className="text-xs text-gray-500">
+              <div className="flex items-center space-x-2 md:space-x-4">
+                <div className="text-right hidden sm:block">
+                  <p className="font-medium text-sm md:text-base">
+                    {user?.username || "User"}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate max-w-[120px] md:max-w-none">
                     {user?.email || "user@example.com"}
                   </p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm md:text-base">
                   {user?.username?.charAt(0).toUpperCase() || "U"}
                 </div>
               </div>
@@ -249,9 +288,9 @@ export default function Dashboard({ initialTodos }) {
           </header>
 
           {/* محتوای صفحه */}
-          <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
             {/* آمار سریع */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
               <StatCard
                 title="Total Tasks"
                 value={tasks.length}
@@ -273,40 +312,42 @@ export default function Dashboard({ initialTodos }) {
             </div>
 
             {/* لیست تسک‌ها و تقویم */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
               <div className="lg:col-span-2">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-semibold">Today's Tasks</h3>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-2">
+                    <h3 className="text-base md:text-lg font-semibold">
+                      Today's Tasks
+                    </h3>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm"
+                      className="flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm"
                       onClick={() => {
                         const newTask = prompt("Enter new task:");
                         if (newTask) addTask(newTask);
                       }}
                     >
-                      <FiPlus />
+                      <FiPlus size={14} />
                       <span>Add Task</span>
                     </motion.button>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-2 md:space-y-3">
                     {tasks.map((task) => (
                       <motion.div
-                        key={task.todo_id} // تغییر از id به todo_id
+                        key={task.index}
                         whileHover={{ y: -2 }}
-                        className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
-                          task.status // تغییر از completed به status
+                        className={`flex items-center p-2 md:p-3 rounded-lg border cursor-pointer transition-all ${
+                          task.status
                             ? "bg-green-50 border-green-200"
                             : "bg-white border-gray-200 hover:shadow-sm"
                         }`}
                         onClick={() => toggleTask(task.todo_id)}
                       >
                         <div
-                          className={`w-5 h-5 rounded border flex items-center justify-center mr-3 ${
-                            task.status // تغییر از completed به status
+                          className={`w-4 h-4 md:w-5 md:h-5 rounded border flex items-center justify-center mr-2 md:mr-3 ${
+                            task.status
                               ? "bg-green-500 border-green-500 text-white"
                               : "border-gray-300"
                           }`}
@@ -314,8 +355,8 @@ export default function Dashboard({ initialTodos }) {
                           {task.status && "✓"}
                         </div>
                         <span
-                          className={`flex-1 ${
-                            task.status // تغییر از completed به status
+                          className={`flex-1 text-sm md:text-base ${
+                            task.status
                               ? "line-through text-gray-500"
                               : "text-gray-800"
                           }`}
@@ -329,21 +370,22 @@ export default function Dashboard({ initialTodos }) {
               </div>
 
               {/* تقویم */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold mb-4">Calendar</h3>
-                <div className="grid grid-cols-7 gap-1 text-center">
-                  {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
-                    <div
-                      key={day}
-                      className="text-xs font-medium text-gray-500 py-1"
-                    >
-                      {day}
-                    </div>
-                  ))}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">
+                  Calendar
+                </h3>
+                <div className="grid grid-cols-7 gap-1 text-center text-xs md:text-sm">
+                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+                    (day) => (
+                      <div key={day} className="font-medium text-gray-500 py-1">
+                        {day.charAt(0)}
+                      </div>
+                    )
+                  )}
                   {Array.from({ length: 31 }).map((_, i) => (
                     <div
-                      key={i}
-                      className={`p-2 rounded-full text-sm ${
+                      key={`day-${i}`}
+                      className={`p-1 md:p-2 rounded-full ${
                         i + 1 === new Date().getDate()
                           ? "bg-blue-600 text-white"
                           : "hover:bg-gray-100"

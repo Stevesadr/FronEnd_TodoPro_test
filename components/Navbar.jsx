@@ -20,7 +20,7 @@ const Navbar = () => {
   );
 
   useEffect(() => {
-    return scrollY.onChange((latest) => {
+    return scrollY.on("change", (latest) => {
       setIsScrolled(latest > 50);
     });
   }, []);
@@ -136,9 +136,9 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <MobileNavLink href="/features" text="Features" />
-                <MobileNavLink href="/pricing" text="Pricing" />
-                <MobileNavLink href="/integrations" text="Integrations" />
+                <MobileNavLink href="/Features" text="Features" />
+                <MobileNavLink href="/Pricing" text="Pricing" />
+                <MobileNavLink href="/Integrations" text="Integrations" />
                 <Link
                   href="/login"
                   className="block w-full text-center px-4 py-3 rounded-lg bg-gray-100 text-gray-800 font-medium"
