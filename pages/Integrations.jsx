@@ -14,7 +14,7 @@ const INTEGRATIONS = [
     logo: "📅",
     category: "Productivity",
     description: "Sync your tasks with Google Calendar events",
-    status: "active",
+    status: "coming soon",
     color: "bg-red-100 text-red-600",
   },
   {
@@ -46,7 +46,7 @@ const INTEGRATIONS = [
     logo: "📌",
     category: "Project Management",
     description: "Import boards as projects",
-    status: "active",
+    status: "coming soon",
     color: "bg-green-100 text-green-600",
   },
   {
@@ -54,7 +54,7 @@ const INTEGRATIONS = [
     logo: "📝",
     category: "Documentation",
     description: "Embed tasks in Notion pages",
-    status: "active",
+    status: "coming soon",
     color: "bg-gray-100 text-gray-600",
   },
 ];
