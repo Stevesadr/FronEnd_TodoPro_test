@@ -1,13 +1,16 @@
 import Cookies from "js-cookie";
 
 export const POSTWITHTOKEN = async (url, body) => {
-  const res = fetch(`https://backend-todopro-test.onrender.com/${url}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${Cookies.get("token")}`,
-    },
-    body: JSON.stringify({ body }),
-  });
+  const res = fetch(
+    `https://condescending-chaplygin-seyoks7xu.liara.run/${url}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+      body: JSON.stringify({ body }),
+    }
+  );
   return res;
 };

@@ -26,13 +26,16 @@ export async function getServerSideProps(context) {
   }
 
   try {
-    const res = await fetch("https://backend-todopro-test.onrender.com/todos", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetch(
+      "https://condescending-chaplygin-seyoks7xu.liara.run/todos",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!res.ok) throw new Error("Failed to fetch todos");
 
@@ -61,7 +64,7 @@ export default function Dashboard({ initialTodos }) {
       const token = getToken();
       console.log(token);
       const res = await fetch(
-        "https://backend-todopro-test.onrender.com/todos/",
+        "https://condescending-chaplygin-seyoks7xu.liara.run/todos/",
         {
           method: "GET",
           headers: {
@@ -93,7 +96,7 @@ export default function Dashboard({ initialTodos }) {
 
       // 2. ارسال درخواست به بک‌اند
       const res = await fetch(
-        "https://backend-todopro-test.onrender.com/todos/add",
+        "https://condescending-chaplygin-seyoks7xu.liara.run/todos/add",
         {
           method: "POST",
           headers: {
@@ -131,7 +134,7 @@ export default function Dashboard({ initialTodos }) {
       if (!taskToUpdate) return;
 
       const res = await fetch(
-        `https://backend-todopro-test.onrender.com/todos/${id}`,
+        `https://condescending-chaplygin-seyoks7xu.liara.run/todos/${id}`,
         {
           method: "PUT",
           headers: {
