@@ -26,16 +26,13 @@ export async function getServerSideProps(context) {
   }
 
   try {
-    const res = await fetch(
-      "https://condescending-chaplygin-seyoks7xu.liara.run/todos",
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const res = await fetch("https://todopro-uhvq.onrender.com/todos", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     if (!res.ok) throw new Error("Failed to fetch todos");
 
@@ -63,16 +60,13 @@ export default function Dashboard({ initialTodos }) {
     try {
       const token = getToken();
       console.log(token);
-      const res = await fetch(
-        "https://condescending-chaplygin-seyoks7xu.liara.run/todos/",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const res = await fetch("https://todopro-uhvq.onrender.com/todos/", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       if (!res.ok) throw new Error("Failed to fetch todos");
       setTasks(await res.json());
     } catch (error) {
@@ -95,17 +89,14 @@ export default function Dashboard({ initialTodos }) {
       setTasks((prev) => [...prev, tempTask]);
 
       // 2. ارسال درخواست به بک‌اند
-      const res = await fetch(
-        "https://condescending-chaplygin-seyoks7xu.liara.run/todos/add",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ title }),
-        }
-      );
+      const res = await fetch("https://todopro-uhvq.onrender.com/todos/add", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title }),
+      });
 
       if (!res.ok) throw new Error("Failed to add todo");
 
@@ -133,19 +124,16 @@ export default function Dashboard({ initialTodos }) {
       const taskToUpdate = tasks.find((task) => task.todo_id === id);
       if (!taskToUpdate) return;
 
-      const res = await fetch(
-        `https://condescending-chaplygin-seyoks7xu.liara.run/todos/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            status: !taskToUpdate.status, // تغییر وضعیت به حالت معکوس
-          }),
-        }
-      );
+      const res = await fetch(`https://todopro-uhvq.onrender.com/todos/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: !taskToUpdate.status, // تغییر وضعیت به حالت معکوس
+        }),
+      });
 
       if (!res.ok) throw new Error("Failed to update todo");
 
