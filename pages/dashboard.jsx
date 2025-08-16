@@ -156,6 +156,25 @@ export default function Dashboard({ initialTodos }) {
       alert("Failed to update task. Please try again.");
     }
   };
+  const deleteTask = async (id) => {
+    try {
+      const token = getToken();
+      const res = await fetch(`https://todopro-uhvq.onrender.com/todos/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to delete todo");
+
+      // حذف تسک از لیست
+      setTasks(tasks.filter((task) => task.todo_id !== id));
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to delete task. Please try again.");
+    }
+  };
 
   useEffect(() => {
     if (getToken()) fetchTodos();
@@ -334,7 +353,6 @@ export default function Dashboard({ initialTodos }) {
                             ? "bg-green-50 border-green-200"
                             : "bg-white border-gray-200 hover:shadow-sm"
                         }`}
-                        onClick={() => toggleTask(task.todo_id)}
                       >
                         <div
                           className={`w-4 h-4 md:w-5 md:h-5 rounded border flex items-center justify-center mr-2 md:mr-3 ${
@@ -342,6 +360,7 @@ export default function Dashboard({ initialTodos }) {
                               ? "bg-green-500 border-green-500 text-white"
                               : "border-gray-300"
                           }`}
+                          onClick={() => toggleTask(task.todo_id)}
                         >
                           {task.status && "✓"}
                         </div>
@@ -351,9 +370,32 @@ export default function Dashboard({ initialTodos }) {
                               ? "line-through text-gray-500"
                               : "text-gray-800"
                           }`}
+                          onClick={() => toggleTask(task.todo_id)}
                         >
                           {task.title}
                         </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteTask(task.todo_id);
+                          }}
+                          className="text-red-500 hover:text-red-700 ml-2"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
                       </motion.div>
                     ))}
                   </div>
