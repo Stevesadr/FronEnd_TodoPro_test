@@ -8,7 +8,7 @@ import {
   FiLogOut,
   FiPlus,
 } from "react-icons/fi";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import StatCard from "../components/StatCard";
 import Cookies from "js-cookie";
 import HistoryDash from "@/components/HistoryDash";
@@ -51,6 +51,29 @@ export default function Dashboard({ initialTodos }) {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [tasks, setTasks] = useState(initialTodos);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const sidebarRef = useRef(null);
+  const contentRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (window.innerWidth < 768 && isSidebarOpen) {
+        if (
+          sidebarRef.current &&
+          !sidebarRef.current.contains(event.target) &&
+          contentRef.current &&
+          contentRef.current.contains(event.target)
+        ) {
+          setIsSidebarOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSidebarOpen]);
 
   // تابع کمکی برای دریافت توکن
   const getToken = () => {
@@ -213,6 +236,7 @@ export default function Dashboard({ initialTodos }) {
 
         {/* سایدبار */}
         <motion.aside
+          ref={sidebarRef}
           initial={{ x: -100 }}
           animate={{
             x: isSidebarOpen ? 0 : -300,
@@ -276,7 +300,10 @@ export default function Dashboard({ initialTodos }) {
         </motion.aside>
 
         {/* محتوای اصلی */}
-        <div className="flex-1 flex flex-col overflow-hidden md:ml-0 transition-all duration-300">
+        <div
+          ref={contentRef}
+          className="flex-1 flex flex-col overflow-hidden md:ml-0 transition-all duration-300"
+        >
           {/* هدر */}
           <header className="bg-white shadow-sm border-b border-gray-200">
             <div className="flex justify-between items-center px-4 md:px-6 py-4">
