@@ -11,6 +11,8 @@ import {
 import { useState, useEffect } from "react";
 import StatCard from "../components/StatCard";
 import Cookies from "js-cookie";
+import HistoryDash from "@/components/HistoryDash";
+import SettingsDash from "@/components/SettingsDash";
 
 export async function getServerSideProps(context) {
   // دریافت توکن از کوکی‌ها
@@ -46,7 +48,7 @@ export async function getServerSideProps(context) {
 
 export default function Dashboard({ initialTodos }) {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState("tasks");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [tasks, setTasks] = useState(initialTodos);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -279,7 +281,9 @@ export default function Dashboard({ initialTodos }) {
           <header className="bg-white shadow-sm border-b border-gray-200">
             <div className="flex justify-between items-center px-4 md:px-6 py-4">
               <h2 className="text-lg md:text-xl font-semibold text-gray-800">
-                My Dashboard
+                {activeTab === "dashboard" && "My Dashboard"}
+                {activeTab === "tasks" && "My Tasks"}
+                {activeTab === "settings" && "Settings"}
               </h2>
               <div className="flex items-center space-x-2 md:space-x-4">
                 <div className="text-right hidden sm:block">
@@ -299,137 +303,160 @@ export default function Dashboard({ initialTodos }) {
 
           {/* محتوای صفحه */}
           <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
-            {/* آمار سریع */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-              <StatCard
-                title="Total Tasks"
-                value={tasks.length}
-                icon="📝"
-                color="bg-blue-100 text-blue-600"
-              />
-              <StatCard
-                title="Completed"
-                value={tasks.filter((t) => t.status).length}
-                icon="✅"
-                color="bg-green-100 text-green-600"
-              />
-              <StatCard
-                title="Pending"
-                value={tasks.filter((t) => !t.status).length}
-                icon="⏳"
-                color="bg-amber-100 text-amber-600"
-              />
-            </div>
+            {/* آمار سریع - فقط در تب دشبورد نمایش داده می‌شود */}
+            {activeTab === "dashboard" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+                <StatCard
+                  title="Total Tasks"
+                  value={tasks.length}
+                  icon="📝"
+                  color="bg-blue-100 text-blue-600"
+                />
+                <StatCard
+                  title="Completed"
+                  value={tasks.filter((t) => t.status).length}
+                  icon="✅"
+                  color="bg-green-100 text-green-600"
+                />
+                <StatCard
+                  title="Pending"
+                  value={tasks.filter((t) => !t.status).length}
+                  icon="⏳"
+                  color="bg-amber-100 text-amber-600"
+                />
+              </div>
+            )}
 
-            {/* لیست تسک‌ها و تقویم */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-              <div className="lg:col-span-2">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-2">
-                    <h3 className="text-base md:text-lg font-semibold">
-                      Today's Tasks
-                    </h3>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm"
-                      onClick={() => {
-                        const newTask = prompt("Enter new task:");
-                        if (newTask) addTask(newTask);
-                      }}
-                    >
-                      <FiPlus size={14} />
-                      <span>Add Task</span>
-                    </motion.button>
-                  </div>
+            {/* محتوای داینامیک بر اساس تب فعال */}
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6"
+            >
+              {activeTab === "dashboard" && <HistoryDash />}
 
-                  <div className="space-y-2 md:space-y-3">
-                    {tasks.map((task) => (
-                      <motion.div
-                        key={task.index}
-                        whileHover={{ y: -2 }}
-                        className={`flex items-center p-2 md:p-3 rounded-lg border cursor-pointer transition-all ${
-                          task.status
-                            ? "bg-green-50 border-green-200"
-                            : "bg-white border-gray-200 hover:shadow-sm"
-                        }`}
-                      >
-                        <div
-                          className={`w-4 h-4 md:w-5 md:h-5 rounded border flex items-center justify-center mr-2 md:mr-3 ${
-                            task.status
-                              ? "bg-green-500 border-green-500 text-white"
-                              : "border-gray-300"
-                          }`}
-                          onClick={() => toggleTask(task.todo_id)}
-                        >
-                          {task.status && "✓"}
-                        </div>
-                        <span
-                          className={`flex-1 text-sm md:text-base ${
-                            task.status
-                              ? "line-through text-gray-500"
-                              : "text-gray-800"
-                          }`}
-                          onClick={() => toggleTask(task.todo_id)}
-                        >
-                          {task.title}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteTask(task.todo_id);
+              {activeTab === "tasks" && (
+                <>
+                  <div className="lg:col-span-2">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-2">
+                        <h3 className="text-base md:text-lg font-semibold">
+                          Today's Tasks
+                        </h3>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm"
+                          onClick={() => {
+                            const newTask = prompt("Enter new task:");
+                            if (newTask) addTask(newTask);
                           }}
-                          className="text-red-500 hover:text-red-700 ml-2"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </button>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* تقویم */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
-                <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">
-                  Calendar
-                </h3>
-                <div className="grid grid-cols-7 gap-1 text-center text-xs md:text-sm">
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
-                    (day) => (
-                      <div key={day} className="font-medium text-gray-500 py-1">
-                        {day.charAt(0)}
+                          <FiPlus size={14} />
+                          <span>Add Task</span>
+                        </motion.button>
                       </div>
-                    )
-                  )}
-                  {Array.from({ length: 31 }).map((_, i) => (
-                    <div
-                      key={`day-${i}`}
-                      className={`p-1 md:p-2 rounded-full ${
-                        i + 1 === new Date().getDate()
-                          ? "bg-blue-600 text-white"
-                          : "hover:bg-gray-100"
-                      }`}
-                    >
-                      {i + 1}
+
+                      <div className="space-y-2 md:space-y-3">
+                        {tasks.map((task) => (
+                          <motion.div
+                            key={task.todo_id}
+                            whileHover={{ y: -2 }}
+                            className={`flex items-center p-2 md:p-3 rounded-lg border cursor-pointer transition-all ${
+                              task.status
+                                ? "bg-green-50 border-green-200"
+                                : "bg-white border-gray-200 hover:shadow-sm"
+                            }`}
+                          >
+                            <div
+                              className={`w-4 h-4 md:w-5 md:h-5 rounded border flex items-center justify-center mr-2 md:mr-3 ${
+                                task.status
+                                  ? "bg-green-500 border-green-500 text-white"
+                                  : "border-gray-300"
+                              }`}
+                              onClick={() => toggleTask(task.todo_id)}
+                            >
+                              {task.status && "✓"}
+                            </div>
+                            <span
+                              className={`flex-1 text-sm md:text-base ${
+                                task.status
+                                  ? "line-through text-gray-500"
+                                  : "text-gray-800"
+                              }`}
+                              onClick={() => toggleTask(task.todo_id)}
+                            >
+                              {task.title}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteTask(task.todo_id);
+                              }}
+                              className="text-red-500 hover:text-red-700 ml-2"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                            </button>
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+                    <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">
+                      Calendar
+                    </h3>
+                    <div className="grid grid-cols-7 gap-1 text-center text-xs md:text-sm">
+                      {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+                        (day) => (
+                          <div
+                            key={day}
+                            className="font-medium text-gray-500 py-1"
+                          >
+                            {day.charAt(0)}
+                          </div>
+                        )
+                      )}
+                      {Array.from({ length: 31 }).map((_, i) => (
+                        <div
+                          key={`day-${i}`}
+                          className={`p-1 md:p-2 rounded-full ${
+                            i + 1 === new Date().getDate()
+                              ? "bg-blue-600 text-white"
+                              : "hover:bg-gray-100"
+                          }`}
+                        >
+                          {i + 1}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeTab === "settings" && (
+                <SettingsDash
+                  user={user?.username || "Not available"}
+                  email={user?.email || "Not available"}
+                />
+              )}
+            </motion.div>
           </main>
         </div>
       </div>
