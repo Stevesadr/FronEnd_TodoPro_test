@@ -13,6 +13,7 @@ import StatCard from "../components/StatCard";
 import Cookies from "js-cookie";
 import HistoryDash from "@/components/HistoryDash";
 import SettingsDash from "@/components/SettingsDash";
+import AddTaskModal from "@/components/AddTaskModal";
 
 export async function getServerSideProps(context) {
   // دریافت توکن از کوکی‌ها
@@ -51,6 +52,7 @@ export default function Dashboard({ initialTodos }) {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [tasks, setTasks] = useState(initialTodos);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const sidebarRef = useRef(null);
   const contentRef = useRef(null);
@@ -100,7 +102,7 @@ export default function Dashboard({ initialTodos }) {
   };
 
   // افزودن تسک جدید
-  const addTask = async (title) => {
+  const addTask = async (title, task_date, task_hour, task_minute) => {
     try {
       const token = getToken();
 
@@ -109,7 +111,9 @@ export default function Dashboard({ initialTodos }) {
         todo_id: Date.now(), // یک ID موقت
         title,
         status: false,
-        task_date: new Date().toISOString().split("T")[0], // تاریخ امروز
+        task_date: task_date || new Date().toISOString().split("T")[0],
+        task_hour: task_hour || new Date().getHours(),
+        task_minute: task_minute || new Date().getMinutes(),
       };
       setTasks((prev) => [...prev, tempTask]);
 
@@ -120,7 +124,12 @@ export default function Dashboard({ initialTodos }) {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({
+          title,
+          task_date: task_date || new Date().toISOString().split("T")[0],
+          task_hour: task_hour || new Date().getHours(),
+          task_minute: task_minute || new Date().getMinutes(),
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to add todo");
@@ -224,6 +233,12 @@ export default function Dashboard({ initialTodos }) {
         <title>Dashboard | TodoPro</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
+
+      <AddTaskModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={addTask}
+      />
 
       <div className="flex flex-col md:flex-row h-screen bg-gray-50 relative">
         {/* دکمه همبرگر برای موبایل */}
@@ -376,10 +391,7 @@ export default function Dashboard({ initialTodos }) {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           className="flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm"
-                          onClick={() => {
-                            const newTask = prompt("Enter new task:");
-                            if (newTask) addTask(newTask);
-                          }}
+                          onClick={() => setIsAddModalOpen(true)} // باز کردن مودال
                         >
                           <FiPlus size={14} />
                           <span>Add Task</span>
@@ -407,26 +419,87 @@ export default function Dashboard({ initialTodos }) {
                             >
                               {task.status && "✓"}
                             </div>
-                            <span
-                              className={`flex-1 text-sm md:text-base ${
-                                task.status
-                                  ? "line-through text-gray-500"
-                                  : "text-gray-800"
-                              }`}
-                              onClick={() => toggleTask(task.todo_id)}
-                            >
-                              {task.title}
-                            </span>
+
+                            <div className="flex-1">
+                              <div className="flex flex-col">
+                                <span
+                                  className={`text-sm md:text-base ${
+                                    task.status
+                                      ? "line-through text-gray-500"
+                                      : "text-gray-800 font-medium"
+                                  }`}
+                                  onClick={() => toggleTask(task.todo_id)}
+                                >
+                                  {task.title}
+                                </span>
+
+                                <div className="flex items-center space-x-3 text-xs text-gray-500 mt-1">
+                                  <span className="flex items-center">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-3 w-3 mr-1"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                      />
+                                    </svg>
+                                    {task.task_date}
+                                  </span>
+
+                                  <span className="flex items-center">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-3 w-3 mr-1"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                      />
+                                    </svg>
+                                    {task.task_hour
+                                      ?.toString()
+                                      .padStart(2, "0")}
+                                    :
+                                    {task.task_minute
+                                      ?.toString()
+                                      .padStart(2, "0")}
+                                  </span>
+
+                                  <span
+                                    className={`px-2 py-0.5 rounded-full text-xs ${
+                                      task.status
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-yellow-100 text-yellow-800"
+                                    }`}
+                                  >
+                                    {task.status ? "Completed" : "Pending"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 deleteTask(task.todo_id);
                               }}
-                              className="text-red-500 hover:text-red-700 ml-2"
+                              className="text-red-500 hover:text-red-700 ml-2 p-1 rounded hover:bg-red-50 transition-colors"
+                              title="Delete task"
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5"
+                                className="h-4 w-4 md:h-5 md:w-5"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
